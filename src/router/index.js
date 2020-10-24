@@ -56,6 +56,35 @@ export const constantRoutes = [
   },
 
   {
+    path: '/label/hierarchy',
+    component: Layout,
+    redirect: '/label/hierarchy',
+    name: '标签体系管理',
+    meta: { title: '标签体系管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'page',
+        name: '标签体系列表',
+        component: () => import('@/views/label/hierarchy/page'),
+        meta: { title: '标签体系列表', icon: 'table' }
+      },
+      {
+        path: 'form',
+        name: '新增标签体系',
+        component: () => import('@/views/label/hierarchy/form'),
+        meta: { title: '新增标签体系', icon: 'tree' }
+      },
+      {
+        path: 'form/:id(\\d+)',
+        component: () => import('@/views/label/hierarchy/form'),
+        name: '编辑标签体系',
+        meta: { title: '编辑标签体系', noCache: true, activeMenu: '/label/hierarchy' },
+        hidden: true
+      }
+    ]
+  },
+
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/table',
