@@ -34,23 +34,9 @@
     </el-form>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="node" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+      <el-form ref="dataForm" :model="node" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="父标签">
-          <el-select :value="node.pid" :clearable="clearable" @clear="clearHandle">
-            <el-option :value="selectData.val" :label="selectData.label" class="options" style="height: auto;">
-              <el-tree
-                id="tree-option"
-                ref="selectTree"
-                :accordion="accordion"
-                :data="options"
-                :props="props"
-                :node-key="props.value"
-                :default-expanded-keys="defaultExpandedKey"
-                :filter-node-method="filterNode"
-                @node-click="handleNodeClick"
-              />
-            </el-option>
-          </el-select>
+          <treeselect v-model="node.pid" :options="options" />
         </el-form-item>
         <el-form-item label="标签名称" prop="name">
           <el-input v-model="node.name" />
@@ -71,46 +57,11 @@
 <script>
 import { map } from '@/api/dict'
 import { get, tree } from '@/api/label/hierarchy'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
-  components: {},
-  props: {
-    /* 配置项 */
-    props: {
-      type: Object,
-      default: () => {
-        return {
-          value: 'id',
-          label: 'name',
-          children: 'children'
-        }
-      }
-    },
-    /* 选项列表数据(树形结构的对象数组) */
-    options: {
-      type: Array,
-      default: () => { return [] }
-    },
-    /* 初始值 */
-    value: {
-      type: Number,
-      default: () => { return null }
-    },
-    /* 可清空选项 */
-    clearable: {
-      type: Boolean,
-      default: () => { return true }
-    },
-    /* 自动收起 */
-    accordion: {
-      type: Boolean,
-      default: () => { return false }
-    },
-    placeholder: {
-      type: String,
-      default: () => { return '检索关键字' }
-    }
-  },
+  components: { Treeselect },
   data() {
     return {
       id: undefined,
@@ -138,16 +89,12 @@ export default {
         create_time: undefined,
         update_time: undefined
       },
-      rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-      },
-      selectData: {
-        label: undefined,
-        value: undefined
-      },
-      defaultExpandedKey: []
+      options: [],
+      selectData: '',
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      }
     }
   },
   created() {
@@ -199,10 +146,7 @@ export default {
     },
     createData() {
       this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-        }
+        // if (valid) { }
       })
     },
     handleUpdate(row) {
@@ -230,30 +174,6 @@ export default {
         duration: 2000
       })
       this.list.splice(index, 1)
-    },
-    // 切换选项
-    handleNodeClick(node) {
-      this.selectData.label = node[this.props.label]
-      this.selectData.label = node[this.props.value]
-      this.$emit('getValue', this.selectData.label)
-      this.defaultExpandedKey = []
-    },
-    // 清除选中
-    clearHandle() {
-      this.valueTitle = ''
-      this.valueId = null
-      this.defaultExpandedKey = []
-      this.clearSelected()
-      this.$emit('getValue', null)
-    },
-    // 清空选中样式
-    clearSelected() {
-      const allNode = document.querySelectorAll('#tree-option .el-tree-node')
-      allNode.forEach((element) => element.classList.remove('is-current'))
-    },
-    filterNode(value, data) {
-      if (!value) return true
-      return data.name.indexOf(value) !== -1
     },
     commit() { }
   }
